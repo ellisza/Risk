@@ -23,21 +23,11 @@ public class Board extends GameLogic {
     Rectangle[][] boardSelections = new Rectangle[10][10];
     Label[][] boardTroops = new Label[10][10];
     StackPane sp = new StackPane();
-    Integer[][] integerTroops = new Integer[10][10];
+    Integer[][] integerTroops;
     ArrayList<Integer> selection;
-    int turn = 0;
-    Color[][] colors = new Color[][]{   //10x10 color grid BLACK SPACES ARE EMPTY-REGIONS
-            {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK, Color.BLACK},
-            {Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK},
-            {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
-            {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
-            {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
-            {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK, Color.WHITE},
-            {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE,},
-            {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE,},
-            {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK},
-            {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK, Color.BLACK},
-    };
+    int turn;
+    public boolean setUpPhase = false;
+    Color[][] colors;
     Button place = new Button("Place");
     Button attack = new Button("Attack");
     Button move = new Button("Move");
@@ -48,7 +38,13 @@ public class Board extends GameLogic {
 
     public Board(){
         selection = new ArrayList<>();
+        startNewGame();
+    }
+
+    public void startNewGame(){
+        turn = 0;
         initTroops();   //initializes the board troops to '0'
+        resetColors();
         initSelections();
         setActions();   //sets the actions of the buttons (from the GameLogic)
 //        refresh(Board.this);  //draws the GUI
@@ -117,14 +113,46 @@ public class Board extends GameLogic {
     }
 
     private EventHandler<MouseEvent> clickedBox = e -> {
-        Rectangle r = (Rectangle)e.getSource();
-        int row = gpColors.getRowIndex(r);
-        int col = gpColors.getColumnIndex(r);
-        //give clicked result to something
-        System.out.println("This box was clicked: " + row + ", " + col + "\nWith color Value: " + boardColors[row][col]);    //for testing purposes
-        highlightSelection(row, col);
-        this.selection.add(row);
-        this.selection.add(col);
+        if (setUpPhase) {
+            Rectangle r = (Rectangle)e.getSource();
+            int row = gpColors.getRowIndex(r);
+            int col = gpColors.getColumnIndex(r);
+            //give clicked result to something
+            System.out.println("This box was clicked: " + row + ", " + col + "\nWith color Value: " + boardColors[row][col]);    //for testing purposes
+            highlightSelection(row, col);
+
+            if (this.turn == 0) {
+                if(this.colors[row][col] == (Color.WHITE)){
+                    this.colors[row][col] = (Color.BLUE);
+                    this.integerTroops[row][col] = 2;
+                    this.endTurn(this);
+                }
+            } else {
+                if(this.colors[row][col] == (Color.WHITE)) {
+                    this.colors[row][col] = (Color.RED);
+                    this.integerTroops[row][col] = 2;
+                    this.endTurn(this);
+                }
+            }
+            this.refresh(this);
+
+            ArrayList<Color> colorList = new ArrayList<>();
+            for (Color[] c : this.colors) {
+                colorList.addAll(Arrays.asList(c));
+            }
+            if(!colorList.contains(Color.WHITE)){
+                this.setUpPhase = false;
+            }
+        } else {
+            Rectangle r = (Rectangle)e.getSource();
+            int row = gpColors.getRowIndex(r);
+            int col = gpColors.getColumnIndex(r);
+            //give clicked result to something
+            System.out.println("This box was clicked: " + row + ", " + col + "\nWith color Value: " + boardColors[row][col]);    //for testing purposes
+            highlightSelection(row, col);
+            this.selection.add(row);
+            this.selection.add(col);
+        }
     };
 
     private void convertColors(Color[][] colors) {      //makes regions clickable
@@ -171,6 +199,7 @@ public class Board extends GameLogic {
     }
 
     public void initTroops() {
+        this.integerTroops =  new Integer[10][10];
         for (Integer[] troop : integerTroops) {
             Arrays.fill(troop, 0);
         }
@@ -194,6 +223,21 @@ public class Board extends GameLogic {
                 if (colors[i][j] != Color.BLACK) boardSelections[i][j].setOnMouseClicked(clickedBox);
             }
         }
+    }
+
+    private void resetColors() {
+        this.colors = new Color[][]{   //10x10 color grid BLACK SPACES ARE EMPTY-REGIONS
+                {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK, Color.BLACK},
+                {Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK},
+                {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
+                {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
+                {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK},
+                {Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.BLACK, Color.WHITE},
+                {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE,},
+                {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.WHITE,},
+                {Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK},
+                {Color.BLACK, Color.BLACK, Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.BLACK, Color.BLACK, Color.BLACK},
+        };
     }
 
 //    public static void gameInit() { //this is my problem

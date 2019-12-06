@@ -14,36 +14,8 @@ public class GameLogic {
     }
 
     public void gameInit(Board board) {    //get one array position
-        //alternates between players to place troops in territories (gives each territory 2? troops)
-        //needs to modify the colors[], troops[] and turn
-        boolean delimiter = true;
-
-        while(delimiter) {
-
-            if (board.turn == 0) {
-                board.colors[board.selection.get(0)][board.selection.get(1)] = (Color.BLUE);
-                board.integerTroops[board.selection.get(0)][board.selection.get(1)] = 2;
-            } else {
-                board.colors[board.selection.get(0)][board.selection.get(1)] = (Color.RED);
-                board.integerTroops[board.selection.get(0)][board.selection.get(1)] = 2;
-            }
-            board.turn = 1 - board.turn;
-            board.refresh(board);
-
-            ArrayList<Color> colorList = new ArrayList<>();
-            for (Color[] c : board.colors) {
-                colorList.addAll(Arrays.asList(c));
-            }
-            if(!colorList.contains(Color.WHITE)){
-                delimiter = false;
-            }
-            
-        }
-
-        //board.colors[board.selection.get(0)][board.selection.get(1)] = board.turn == 0 ? Color.BLUE : Color.RED;
-        //board.integerTroops[board.selection.get(0)][board.selection.get(1)] = 2;
-        //board.turn = 1 - board.turn;
-        //board.refresh(board);
+        board.startNewGame();
+        board.setUpPhase = true;
     }
 
 
